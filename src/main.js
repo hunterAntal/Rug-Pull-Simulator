@@ -34,6 +34,7 @@ class Game {
       if (!result.success) {
         this.showNotification(result.message);
       } else {
+        this.ui.setCashOutMarker();
         this.playSound('cashout');
         this.showNotification(`Cashed out! ${result.totalProfit >= 0 ? '+' : ''}$${result.totalProfit.toFixed(2)}`);
       }

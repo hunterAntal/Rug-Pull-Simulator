@@ -8,6 +8,7 @@ export class UIRenderer {
     this.setupCanvas();
     this.priceHistory = [];
     this.maxHistoryPoints = 1000;
+    this.cashOutMarker = null;
   }
 
   /**
@@ -224,6 +225,40 @@ export class UIRenderer {
 
     this.ctx.stroke();
 
+    // Draw cash out marker (if exists)
+    if (this.cashOutMarker) {
+      // Find the index of the price point closest to cash out time
+      const cashOutIndex = this.priceHistory.findIndex(p => p.time >= this.cashOutMarker.time);
+
+      if (cashOutIndex !== -1) {
+        const x = (cashOutIndex / (this.priceHistory.length - 1)) * (width - padding * 2) + padding;
+        const y = height - padding - ((this.cashOutMarker.price - minPrice) / (maxPrice - minPrice)) * (height - padding * 2);
+
+        // Vertical dashed line (full height)
+        this.ctx.strokeStyle = '#ff6b35';
+        this.ctx.lineWidth = 2;
+        this.ctx.setLineDash([8, 4]);
+        this.ctx.beginPath();
+        this.ctx.moveTo(x, padding);
+        this.ctx.lineTo(x, height - padding);
+        this.ctx.stroke();
+        this.ctx.setLineDash([]);
+
+        // Dot on price line
+        this.ctx.fillStyle = '#ff6b35';
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, 6, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        // White border around dot for visibility
+        this.ctx.strokeStyle = '#fff';
+        this.ctx.lineWidth = 2;
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, 6, 0, Math.PI * 2);
+        this.ctx.stroke();
+      }
+    }
+
     // Draw current price indicator
     const lastPoint = this.priceHistory[this.priceHistory.length - 1];
     const lastX = width - padding;
@@ -270,11 +305,25 @@ export class UIRenderer {
   }
 
   /**
+   * Set cash out marker
+   */
+  setCashOutMarker() {
+    const currentPrice = this.game.getCurrentPrice();
+    const currentTime = this.game.roundTimer.getElapsedTime();
+
+    this.cashOutMarker = {
+      time: currentTime,
+      price: currentPrice
+    };
+  }
+
+  /**
    * Show round start
    */
   showRoundStart(coinName) {
     this.elements.coinName.textContent = coinName;
     this.priceHistory = [];
+    this.cashOutMarker = null;
     this.elements.positionsList.innerHTML = '<p style="color: #666;">No active positions</p>';
     this.elements.currentProfit.textContent = '$0.00';
     this.hideResults();
