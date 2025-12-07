@@ -50,7 +50,7 @@ export class GameController {
     await this.sleep(3000); // 3 second countdown
 
     // Generate round
-    const duration = Math.floor(Math.random() * 4) + 7; // 7-10 seconds
+    const duration = Math.floor(Math.random() * 4) + 15; // 7-10 seconds
     this.currentRound = this.chartGenerator.generateChart(duration);
     this.currentCoinName = this.getRandomCoinName();
 
