@@ -47,6 +47,23 @@ class Game {
       this.controller.setBetAmount(amount);
     });
 
+    // Results screen bet adjustment
+    this.ui.elements.decreaseBet.addEventListener('click', () => {
+      this.adjustBet(-10);
+    });
+
+    this.ui.elements.increaseBet.addEventListener('click', () => {
+      this.adjustBet(10);
+    });
+
+    this.ui.elements.betInputResults.addEventListener('input', (e) => {
+      const amount = parseFloat(e.target.value) || 0;
+      if (amount >= 10 && amount <= this.controller.balanceManager.getBalance()) {
+        this.controller.setBetAmount(amount);
+        this.ui.elements.betAmount.value = amount;
+      }
+    });
+
     // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
       if (e.code === 'Space' && this.controller.state === 'active') {
@@ -89,7 +106,8 @@ class Game {
     // Round end
     this.controller.on('roundEnd', (data) => {
       console.log('Round ended:', data);
-      this.ui.showResults(data.result, data.coinName);
+      this.ui.showResults(data.result, data.coinName, this.controller.stats);
+      this.startCountdown(3);
     });
 
     // Balance updates
@@ -165,6 +183,46 @@ class Game {
   playSound(type) {
     // Sound effects could be added here
     console.log('Sound:', type);
+  }
+
+  /**
+   * Adjust bet amount
+   */
+  adjustBet(delta) {
+    const currentBet = this.controller.betAmount;
+    const newBet = currentBet + delta;
+    const maxBet = this.controller.balanceManager.getBalance();
+
+    if (newBet >= 10 && newBet <= maxBet) {
+      this.controller.setBetAmount(newBet);
+      this.ui.elements.betAmount.value = newBet;
+      this.ui.elements.betInputResults.value = newBet;
+    }
+  }
+
+  /**
+   * Start countdown between rounds
+   */
+  startCountdown(seconds) {
+    let remaining = seconds;
+
+    const updateCountdown = () => {
+      if (remaining > 0) {
+        this.ui.elements.countdownMessage.textContent =
+          `Next round starting in ${remaining}...`;
+      } else {
+        this.ui.elements.countdownMessage.textContent =
+          `Starting now...`;
+      }
+
+      remaining--;
+
+      if (remaining >= 0) {
+        setTimeout(updateCountdown, 1000);
+      }
+    };
+
+    updateCountdown();
   }
 }
 

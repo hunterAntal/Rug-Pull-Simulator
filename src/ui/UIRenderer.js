@@ -32,7 +32,14 @@ export class UIRenderer {
       resultsTitle: document.getElementById('resultsTitle'),
       resultsProfit: document.getElementById('resultsProfit'),
       resultsMultiplier: document.getElementById('resultsMultiplier'),
-      resultsBreakdown: document.getElementById('resultsBreakdown')
+      resultsBreakdown: document.getElementById('resultsBreakdown'),
+      resultsBalance: document.getElementById('resultsBalance'),
+      winsCount: document.getElementById('winsCount'),
+      lossesCount: document.getElementById('lossesCount'),
+      betInputResults: document.getElementById('betInputResults'),
+      decreaseBet: document.getElementById('decreaseBet'),
+      increaseBet: document.getElementById('increaseBet'),
+      countdownMessage: document.getElementById('countdownMessage')
     };
   }
 
@@ -377,7 +384,7 @@ export class UIRenderer {
   /**
    * Show round results
    */
-  showResults(result, coinName) {
+  showResults(result, coinName, stats) {
     const overlay = this.elements.resultsOverlay;
     overlay.classList.add('active');
 
@@ -432,6 +439,15 @@ export class UIRenderer {
     } else {
       this.elements.resultsBreakdown.innerHTML = '';
     }
+
+    // Update stats section
+    const balance = this.game.balanceManager.getBalance();
+    this.elements.resultsBalance.textContent = `$${balance.toFixed(2)}`;
+    this.elements.winsCount.textContent = stats.wins;
+    this.elements.lossesCount.textContent = stats.losses;
+
+    // Update bet input
+    this.elements.betInputResults.value = this.game.betAmount;
   }
 
   /**

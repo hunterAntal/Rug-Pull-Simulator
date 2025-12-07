@@ -70,7 +70,34 @@
                     <div class="results-profit" id="resultsProfit">-$100.00</div>
                     <div class="results-multiplier" id="resultsMultiplier">0.00x</div>
                     <div class="results-breakdown" id="resultsBreakdown"></div>
-                    <p class="results-message">Next round starting soon...</p>
+
+                    <div class="stats-section">
+                        <div class="balance-row">
+                            <span class="stat-label">Balance:</span>
+                            <span class="stat-value" id="resultsBalance">$1,000.00</span>
+                        </div>
+                        <div class="record-row">
+                            <div class="record-item wins">
+                                <span class="record-label">Wins:</span>
+                                <span class="record-value" id="winsCount">0</span>
+                            </div>
+                            <div class="record-item losses">
+                                <span class="record-label">Losses:</span>
+                                <span class="record-value" id="lossesCount">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bet-adjustment-section">
+                        <label class="bet-label">Next Bet:</label>
+                        <div class="bet-controls-group">
+                            <button class="bet-btn" id="decreaseBet">-</button>
+                            <input type="number" class="bet-input-results" id="betInputResults" value="100" min="10" step="10">
+                            <button class="bet-btn" id="increaseBet">+</button>
+                        </div>
+                    </div>
+
+                    <p class="results-message" id="countdownMessage">Next round starting in 3...</p>
                 </div>
             </div>
         </main>
