@@ -135,16 +135,40 @@ export class UIRenderer {
    */
   updatePositionsList(positions) {
     if (!positions || positions.length === 0) {
-      this.elements.positionsList.innerHTML = '<p style="color: #666;">No active positions</p>';
+      this.elements.positionsList.innerHTML = '<p class="no-positions">No active positions</p>';
       return;
     }
 
-    const html = positions.map(pos => `
-      <div class="position-item">
-        <span>Day ${pos.entryDay} @ $${pos.entryPrice.toFixed(3)}</span>
-        <span>${pos.profit >= 0 ? '+' : ''}$${pos.profit.toFixed(2)} (${pos.multiplier.toFixed(2)}x)</span>
-      </div>
-    `).join('');
+    const html = positions.map((pos, index) => {
+      const profitClass = pos.profit >= 0 ? 'positive' : 'negative';
+      const profitPercent = ((pos.multiplier - 1) * 100).toFixed(1);
+      const positionType = index === 0 ? 'Initial' : 'Doubled';
+
+      return `
+        <div class="position-item">
+          <div class="position-row">
+            <span class="label">${positionType}:</span>
+            <span class="value">Day ${pos.entryDay}</span>
+          </div>
+          <div class="position-row">
+            <span class="label">Entry:</span>
+            <span class="value">$${pos.entryPrice.toFixed(3)}</span>
+          </div>
+          <div class="position-row">
+            <span class="label">Amount:</span>
+            <span class="value">$${pos.amount.toFixed(2)}</span>
+          </div>
+          <div class="position-row">
+            <span class="label">Value:</span>
+            <span class="value">$${pos.value.toFixed(2)}</span>
+          </div>
+          <div class="position-row profit">
+            <span class="label">P/L:</span>
+            <span class="value ${profitClass}">${pos.profit >= 0 ? '+' : ''}$${pos.profit.toFixed(2)} (${profitPercent >= 0 ? '+' : ''}${profitPercent}%)</span>
+          </div>
+        </div>
+      `;
+    }).join('');
 
     this.elements.positionsList.innerHTML = html;
   }

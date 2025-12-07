@@ -17,32 +17,44 @@
         </header>
 
         <main class="game-container">
-            <div class="chart-section">
-                <div class="chart-header">
-                    <span class="day-counter" id="dayCounter">Day 0</span>
-                    <span class="price-display" id="currentPrice">$1.00</span>
-                </div>
-                <canvas id="priceChart" width="800" height="400"></canvas>
-            </div>
-
-            <div class="controls-section">
-                <div class="bet-controls">
-                    <label for="betAmount">Bet Amount:</label>
-                    <input type="number" id="betAmount" value="100" min="1" step="10">
+            <div class="main-content">
+                <div class="chart-section">
+                    <div class="chart-header">
+                        <span class="day-counter" id="dayCounter">Day 0</span>
+                        <span class="price-display" id="currentPrice">$1.00</span>
+                    </div>
+                    <canvas id="priceChart" width="800" height="400"></canvas>
                 </div>
 
-                <div class="action-buttons">
-                    <button id="investBtn" class="btn btn-invest" disabled>
-                        INVEST
-                    </button>
-                    <button id="cashOutBtn" class="btn btn-cashout" disabled>
-                        CASH OUT
-                    </button>
-                </div>
+                <div class="position-panel">
+                    <h3 class="panel-title">YOUR POSITION</h3>
 
-                <div class="investment-status" id="investmentStatus">
-                    <div class="positions-list" id="positionsList"></div>
-                    <div class="current-profit" id="currentProfit">$0.00</div>
+                    <div class="bet-controls">
+                        <label for="betAmount">Bet Amount:</label>
+                        <input type="number" id="betAmount" value="100" min="1" step="10">
+                    </div>
+
+                    <div class="positions-container" id="positionsContainer">
+                        <div class="positions-list" id="positionsList">
+                            <p class="no-positions">No active positions</p>
+                        </div>
+                    </div>
+
+                    <div class="separator"></div>
+
+                    <div class="total-summary">
+                        <span class="summary-label">TOTAL P/L:</span>
+                        <div class="current-profit" id="currentProfit">$0.00</div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button id="cashOutBtn" class="btn btn-cashout" disabled>
+                            💰 CASH OUT
+                        </button>
+                        <button id="investBtn" class="btn btn-invest" disabled>
+                            ⚡ INVEST
+                        </button>
+                    </div>
                 </div>
             </div>
 

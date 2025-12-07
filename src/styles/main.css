@@ -47,13 +47,23 @@ body {
     margin-left: 10px;
 }
 
+/* Main Content - Side by Side Layout */
+.main-content {
+    display: flex;
+    gap: 0;
+    margin-bottom: 20px;
+    min-height: 500px;
+}
+
 /* Chart Section */
 .chart-section {
+    flex: 1;
     background: rgba(0, 0, 0, 0.3);
-    border-radius: 10px;
+    border-radius: 10px 0 0 10px;
     padding: 20px;
-    margin-bottom: 20px;
     border: 2px solid rgba(255, 255, 255, 0.1);
+    border-right: none;
+    min-width: 60%;
 }
 
 .chart-header {
@@ -77,34 +87,50 @@ body {
 #priceChart {
     width: 100%;
     height: auto;
-    max-height: 400px;
+    max-height: 500px;
     background: rgba(0, 0, 0, 0.5);
     border-radius: 5px;
 }
 
-/* Controls Section */
-.controls-section {
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 10px;
+/* Position Panel */
+.position-panel {
+    width: 350px;
+    max-width: 400px;
     padding: 20px;
-    margin-bottom: 20px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 0 10px 10px 0;
     border: 2px solid rgba(255, 255, 255, 0.1);
+    border-left: 1px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
+.panel-title {
+    font-size: 1.2rem;
+    color: #00ff88;
+    text-align: center;
+    margin: 0 0 10px 0;
+    padding-bottom: 10px;
+    border-bottom: 2px solid rgba(0, 255, 136, 0.3);
+}
+
+/* Bet Controls */
 .bet-controls {
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 .bet-controls label {
     display: block;
     margin-bottom: 5px;
-    font-size: 1.1rem;
+    font-size: 0.9rem;
+    color: #aaa;
 }
 
 .bet-controls input {
     width: 100%;
     padding: 10px;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     background: rgba(0, 0, 0, 0.5);
     border: 2px solid #00ff88;
     border-radius: 5px;
@@ -112,42 +138,119 @@ body {
     font-family: 'Courier New', monospace;
 }
 
+/* Positions Container */
+.positions-container {
+    flex: 1;
+    overflow-y: auto;
+    max-height: 250px;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+}
+
+.no-positions {
+    color: #666;
+    text-align: center;
+    padding: 20px;
+    font-size: 0.9rem;
+}
+
+.positions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.position-item {
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 5px;
+    border-left: 3px solid #00ff88;
+}
+
+.position-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    margin: 3px 0;
+}
+
+.position-row .label {
+    color: #999;
+}
+
+.position-row .value {
+    font-weight: bold;
+    color: #fff;
+}
+
+.position-row.profit .value.positive {
+    color: #00ff88;
+}
+
+.position-row.profit .value.negative {
+    color: #ff3366;
+}
+
+/* Separator */
+.separator {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+    margin: 5px 0;
+}
+
+/* Total Summary */
+.total-summary {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+}
+
+.summary-label {
+    font-size: 0.9rem;
+    color: #999;
+    margin-bottom: 5px;
+}
+
+.current-profit {
+    font-size: 2rem;
+    font-weight: bold;
+    text-align: center;
+}
+
+.current-profit.positive {
+    color: #00ff88;
+}
+
+.current-profit.negative {
+    color: #ff3366;
+}
+
+/* Action Buttons */
 .action-buttons {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .btn {
-    padding: 15px 30px;
-    font-size: 1.3rem;
+    width: 100%;
+    padding: 15px;
+    font-size: 1.1rem;
     font-weight: bold;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     cursor: pointer;
     transition: all 0.1s;
     font-family: 'Courier New', monospace;
-    text-transform: uppercase;
 }
 
 .btn:disabled {
-    opacity: 0.5;
+    opacity: 0.4;
     cursor: not-allowed;
-}
-
-.btn-invest {
-    background: #00ff88;
-    color: #1a1a2e;
-}
-
-.btn-invest:not(:disabled):hover {
-    background: #00cc6f;
-    transform: scale(1.05);
-}
-
-.btn-invest:not(:disabled):active {
-    transform: scale(0.95);
 }
 
 .btn-cashout {
@@ -157,45 +260,25 @@ body {
 
 .btn-cashout:not(:disabled):hover {
     background: #cc2952;
-    transform: scale(1.05);
+    transform: scale(1.02);
 }
 
 .btn-cashout:not(:disabled):active {
-    transform: scale(0.95);
+    transform: scale(0.98);
 }
 
-/* Investment Status */
-.investment-status {
-    padding: 15px;
-    background: rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    min-height: 100px;
+.btn-invest {
+    background: #00ff88;
+    color: #1a1a2e;
 }
 
-.positions-list {
-    margin-bottom: 10px;
+.btn-invest:not(:disabled):hover {
+    background: #00cc6f;
+    transform: scale(1.02);
 }
 
-.position-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 5px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.current-profit {
-    font-size: 1.5rem;
-    font-weight: bold;
-    text-align: right;
-    margin-top: 10px;
-}
-
-.current-profit.positive {
-    color: #00ff88;
-}
-
-.current-profit.negative {
-    color: #ff3366;
+.btn-invest:not(:disabled):active {
+    transform: scale(0.98);
 }
 
 /* News Ticker */
@@ -295,6 +378,16 @@ body {
 }
 
 /* Mobile Responsive */
+@media (max-width: 1024px) {
+    .position-panel {
+        width: 300px;
+    }
+
+    #priceChart {
+        max-height: 400px;
+    }
+}
+
 @media (max-width: 768px) {
     .coin-name {
         font-size: 1.8rem;
@@ -304,11 +397,34 @@ body {
         font-size: 1.2rem;
     }
 
-    .action-buttons {
-        grid-template-columns: 1fr;
+    .main-content {
+        flex-direction: column;
+    }
+
+    .chart-section {
+        border-radius: 10px 10px 0 0;
+        border-right: 2px solid rgba(255, 255, 255, 0.1);
+        border-bottom: none;
+        min-width: 100%;
+    }
+
+    .position-panel {
+        width: 100%;
+        max-width: 100%;
+        border-radius: 0 0 10px 10px;
+        border-left: 2px solid rgba(255, 255, 255, 0.1);
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
     }
 
     #priceChart {
         max-height: 300px;
+    }
+
+    .positions-container {
+        max-height: 150px;
+    }
+
+    .current-profit {
+        font-size: 1.5rem;
     }
 }
