@@ -3,7 +3,8 @@
  */
 export class BalanceManager {
   constructor(initialBalance = 1000) {
-    this.balance = this.loadBalance() || initialBalance;
+    // this.balance = this.loadBalance() || initialBalance;
+    this.balance = initialBalance;
     this.initialBalance = initialBalance;
     this.transactionHistory = [];
   }
