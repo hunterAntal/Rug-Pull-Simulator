@@ -292,11 +292,17 @@ export class UIRenderer {
       title = 'REKT 💀';
       titleClass = 'loss';
     } else if (result.outcome === 'cashed_out') {
-      title = 'PAPER HANDS 📄';
-      titleClass = 'win';
-    } else if (result.profit > 0) {
-      title = 'PROFIT! 🚀';
-      titleClass = 'win';
+      const profit = result.profit || 0;
+      if (profit > 0) {
+        title = 'PROFIT! 🚀';
+        titleClass = 'win';
+      } else if (profit < 0) {
+        title = 'PAPER HANDS 📄';
+        titleClass = 'loss';
+      } else {
+        title = 'BREAK EVEN';
+        titleClass = '';
+      }
     }
 
     this.elements.resultsTitle.textContent = title;

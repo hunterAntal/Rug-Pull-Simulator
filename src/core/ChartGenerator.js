@@ -10,6 +10,13 @@ export class ChartGenerator {
       MEDIUM_PEAK: { probability: 0.20, name: 'medium_peak' },
       MOON_SHOT: { probability: 0.05, name: 'moon_shot' }
     };
+
+    this.OPENING_PATTERNS = {
+      STABLE_START: { probability: 0.30, name: 'stable_start' },
+      PUMP_START: { probability: 0.20, name: 'pump_start' },
+      DUMP_START: { probability: 0.35, name: 'dump_start' },
+      EXTREME_DUMP: { probability: 0.15, name: 'extreme_dump' }
+    };
   }
 
   /**
@@ -19,6 +26,7 @@ export class ChartGenerator {
    */
   generateChart(durationSeconds) {
     const roundType = this.selectRoundType();
+    const openingPattern = this.selectOpeningPattern();
     const samplesPerSecond = 10; // 10 price points per second for smooth animation
     const totalSamples = durationSeconds * samplesPerSecond;
 
@@ -28,27 +36,28 @@ export class ChartGenerator {
     switch (roundType) {
       case 'instant_loss':
         peakMultiplier = 0;
-        pricePoints = this.generateInstantLoss(totalSamples, durationSeconds);
+        pricePoints = this.generateInstantLoss(totalSamples, durationSeconds, openingPattern);
         break;
 
       case 'small_peak':
         peakMultiplier = this.random(1.1, 1.3);
-        pricePoints = this.generatePeakCurve(totalSamples, durationSeconds, peakMultiplier);
+        pricePoints = this.generatePeakCurve(totalSamples, durationSeconds, peakMultiplier, openingPattern);
         break;
 
       case 'medium_peak':
         peakMultiplier = this.random(1.5, 2.0);
-        pricePoints = this.generatePeakCurve(totalSamples, durationSeconds, peakMultiplier);
+        pricePoints = this.generatePeakCurve(totalSamples, durationSeconds, peakMultiplier, openingPattern);
         break;
 
       case 'moon_shot':
         peakMultiplier = this.random(3.0, 5.0);
-        pricePoints = this.generatePeakCurve(totalSamples, durationSeconds, peakMultiplier);
+        pricePoints = this.generatePeakCurve(totalSamples, durationSeconds, peakMultiplier, openingPattern);
         break;
     }
 
     return {
       type: roundType,
+      openingPattern,
       peakMultiplier,
       pricePoints,
       duration: durationSeconds
@@ -74,24 +83,92 @@ export class ChartGenerator {
   }
 
   /**
+   * Select opening pattern based on probability distribution
+   * @returns {string} Opening pattern name
+   */
+  selectOpeningPattern() {
+    const rand = Math.random();
+    let cumulative = 0;
+
+    for (const [key, value] of Object.entries(this.OPENING_PATTERNS)) {
+      cumulative += value.probability;
+      if (rand <= cumulative) {
+        return value.name;
+      }
+    }
+
+    return this.OPENING_PATTERNS.STABLE_START.name; // Fallback
+  }
+
+  /**
+   * Get opening price based on pattern
+   * @param {string} pattern - Opening pattern name
+   * @returns {number} Opening price
+   */
+  getOpeningPrice(pattern) {
+    switch (pattern) {
+      case 'stable_start':
+        return this.random(0.95, 1.05);
+      case 'pump_start':
+        return this.random(1.15, 1.30);
+      case 'dump_start':
+        return this.random(0.70, 0.90);
+      case 'extreme_dump':
+        return this.random(0.50, 0.70);
+      default:
+        return 1.0;
+    }
+  }
+
+  /**
    * Generate instant loss curve (exponential decay)
    * @param {number} samples - Number of data points
    * @param {number} duration - Duration in seconds
+   * @param {string} openingPattern - Opening volatility pattern
    * @returns {Array} Price points
    */
-  generateInstantLoss(samples, duration) {
+  generateInstantLoss(samples, duration, openingPattern) {
     const pricePoints = [];
     const startPrice = 1.0;
+    const openingPrice = this.getOpeningPrice(openingPattern);
+    const openingDuration = this.random(1.0, 2.0); // 1-2 seconds for opening
+    const openingSamples = Math.floor((openingDuration / duration) * samples);
+
+    // Generate opening sequence (transition from $1.00 to opening price)
+    for (let i = 0; i < openingSamples; i++) {
+      const progress = i / openingSamples;
+      const time = (i / samples) * duration;
+
+      // Smooth transition with volatility
+      const basePrice = startPrice + (openingPrice - startPrice) * this.easeInOutCubic(progress);
+      const volatility = this.noise() * 0.05;
+      const price = Math.max(0.1, basePrice + volatility);
+
+      pricePoints.push({
+        time: time,
+        price: price,
+        day: Math.floor(time) + 1
+      });
+    }
+
+    // Continue from opening price with exponential decay
     const decayRate = 0.5;
+    const remainingSamples = samples - openingSamples;
 
-    for (let i = 0; i < samples; i++) {
-      const timeRatio = i / samples;
-      const time = timeRatio * duration;
+    for (let i = 0; i < remainingSamples; i++) {
+      const timeRatio = i / remainingSamples;
+      const time = openingDuration + (timeRatio * (duration - openingDuration));
 
-      // Exponential decay with some randomness
-      let price = startPrice * Math.exp(-decayRate * time);
-      price += this.noise() * 0.02; // Small noise
-      price = Math.max(0, price); // Ensure non-negative
+      // Exponential decay from opening price
+      let price = openingPrice * Math.exp(-decayRate * timeRatio);
+
+      // Add occasional false hope pump for pump starts
+      if (openingPattern === 'pump_start' && timeRatio < 0.3) {
+        price *= 1.1; // Brief continuation of pump before crash
+      }
+
+      price += this.noise() * 0.02;
+      price = Math.max(0, price);
 
       pricePoints.push({
         time: time,
@@ -111,32 +188,73 @@ export class ChartGenerator {
    * @param {number} samples - Number of data points
    * @param {number} duration - Duration in seconds
    * @param {number} peakMultiplier - Maximum multiplier to reach
+   * @param {string} openingPattern - Opening volatility pattern
    * @returns {Array} Price points
    */
-  generatePeakCurve(samples, duration, peakMultiplier) {
+  generatePeakCurve(samples, duration, peakMultiplier, openingPattern) {
     const pricePoints = [];
     const startPrice = 1.0;
+    const openingPrice = this.getOpeningPrice(openingPattern);
+    const openingDuration = this.random(1.0, 2.0); // 1-2 seconds for opening
+    const openingSamples = Math.floor((openingDuration / duration) * samples);
 
-    // Peak occurs 30-60% through the round
+    // Generate opening sequence (transition from $1.00 to opening price)
+    for (let i = 0; i < openingSamples; i++) {
+      const progress = i / openingSamples;
+      const time = (i / samples) * duration;
+
+      // Smooth transition with volatility
+      const basePrice = startPrice + (openingPrice - startPrice) * this.easeInOutCubic(progress);
+      const volatility = this.noise() * 0.05;
+      const price = Math.max(0.1, basePrice + volatility);
+
+      pricePoints.push({
+        time: time,
+        price: price,
+        day: Math.floor(time) + 1
+      });
+    }
+
+    // Continue with rise to peak from opening price
+    const remainingSamples = samples - openingSamples;
+    const remainingDuration = duration - openingDuration;
+
+    // Peak occurs 30-60% through the REMAINING time
     const peakTimeRatio = this.random(0.3, 0.6);
-    const peakSample = Math.floor(samples * peakTimeRatio);
+    const peakSample = Math.floor(remainingSamples * peakTimeRatio);
 
-    for (let i = 0; i < samples; i++) {
-      const timeRatio = i / samples;
-      const time = timeRatio * duration;
+    for (let i = 0; i < remainingSamples; i++) {
+      const timeRatio = i / remainingSamples;
+      const time = openingDuration + (timeRatio * remainingDuration);
       let price;
 
       if (i <= peakSample) {
-        // Rise phase - smooth acceleration
+        // Rise phase - from opening price to peak
         const riseProgress = i / peakSample;
         const easedProgress = this.easeInOutCubic(riseProgress);
-        price = startPrice + (peakMultiplier - startPrice) * easedProgress;
+
+        // If we dumped at start, need to recover first then climb
+        if (openingPrice < 1.0) {
+          // Recovery + growth
+          if (riseProgress < 0.4) {
+            // First 40% is recovery to $1.00
+            const recoveryProgress = riseProgress / 0.4;
+            price = openingPrice + (1.0 - openingPrice) * recoveryProgress;
+          } else {
+            // Next 60% is growth to peak
+            const growthProgress = (riseProgress - 0.4) / 0.6;
+            price = 1.0 + (peakMultiplier - 1.0) * growthProgress;
+          }
+        } else {
+          // Started high, just grow to peak
+          price = openingPrice + (peakMultiplier - openingPrice) * easedProgress;
+        }
 
         // Add realistic volatility
         price += this.noise() * 0.03;
       } else {
         // Crash phase - quadratic decay (faster crash)
-        const crashProgress = (i - peakSample) / (samples - peakSample);
+        const crashProgress = (i - peakSample) / (remainingSamples - peakSample);
         const easedCrash = Math.pow(crashProgress, 2);
         price = peakMultiplier * (1 - easedCrash);
 

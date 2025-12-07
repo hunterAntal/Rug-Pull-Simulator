@@ -18,6 +18,7 @@ export class GameController {
     this.currentCoinName = null;
     this.animationFrameId = null;
     this.betAmount = 100;
+    this.lastCashOutResult = null;
 
     this.listeners = {
       stateChange: [],
@@ -53,9 +54,15 @@ export class GameController {
     this.currentRound = this.chartGenerator.generateChart(duration);
     this.currentCoinName = this.getRandomCoinName();
 
+    // Log round info for debugging
+    console.log(`🎲 Round Type: ${this.currentRound.type}`);
+    console.log(`📊 Opening: ${this.currentRound.openingPattern}`);
+    console.log(`📈 Peak Multiplier: ${this.currentRound.peakMultiplier.toFixed(2)}x`);
+
     // Reset round-specific managers
     this.investmentManager.reset();
     this.roundTimer.start(duration);
+    this.lastCashOutResult = null;
 
     // Start active round
     this.state = 'active';
@@ -121,12 +128,14 @@ export class GameController {
       result.profit = -result.totalLoss;
       result.multiplier = 0;
       result.outcome = 'loss';
-    } else if (this.investmentManager.hasCashedOut) {
-      // Already cashed out
+    } else if (this.investmentManager.hasCashedOut && this.lastCashOutResult) {
+      // Already cashed out - use stored result
       result = {
         outcome: 'cashed_out',
-        profit: 0,
-        multiplier: 0
+        profit: this.lastCashOutResult.totalProfit,
+        multiplier: this.lastCashOutResult.multiplier,
+        totalInvested: this.lastCashOutResult.totalInvested,
+        currentValue: this.lastCashOutResult.currentValue
       };
     } else {
       // No investments
@@ -224,6 +233,14 @@ export class GameController {
 
     // Add to balance
     this.balanceManager.add(cashOutResult.currentValue, 'cash_out');
+
+    // Store cashout result for round end display
+    this.lastCashOutResult = {
+      totalProfit: cashOutResult.totalProfit,
+      multiplier: cashOutResult.multiplier,
+      totalInvested: cashOutResult.totalInvested,
+      currentValue: cashOutResult.currentValue
+    };
 
     this.emit('balanceUpdate', { balance: this.balanceManager.getBalance() });
 
