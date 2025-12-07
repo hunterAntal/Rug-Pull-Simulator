@@ -1,0 +1,19 @@
+{
+  "name": "rug-pull-simulator",
+  "version": "0.1.0",
+  "description": "A viral meme-based gambling game where players invest in randomly generated meme coins",
+  "main": "index.html",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest"
+  },
+  "keywords": ["game", "meme", "crypto", "gambling"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "vitest": "^1.0.0"
+  }
+}

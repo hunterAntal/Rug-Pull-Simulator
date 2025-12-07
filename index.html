@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rug Pull Simulator - Meme Coin Crash Game</title>
+    <link rel="stylesheet" href="/src/styles/main.css">
+</head>
+<body>
+    <div id="app">
+        <header class="game-header">
+            <h1 class="coin-name" id="coinName">$LOADING</h1>
+            <div class="balance-display">
+                <span class="balance-label">Balance:</span>
+                <span class="balance-amount" id="balance">$1000.00</span>
+            </div>
+        </header>
+
+        <main class="game-container">
+            <div class="chart-section">
+                <div class="chart-header">
+                    <span class="day-counter" id="dayCounter">Day 0</span>
+                    <span class="price-display" id="currentPrice">$1.00</span>
+                </div>
+                <canvas id="priceChart" width="800" height="400"></canvas>
+            </div>
+
+            <div class="controls-section">
+                <div class="bet-controls">
+                    <label for="betAmount">Bet Amount:</label>
+                    <input type="number" id="betAmount" value="100" min="1" step="10">
+                </div>
+
+                <div class="action-buttons">
+                    <button id="investBtn" class="btn btn-invest" disabled>
+                        INVEST
+                    </button>
+                    <button id="cashOutBtn" class="btn btn-cashout" disabled>
+                        CASH OUT
+                    </button>
+                </div>
+
+                <div class="investment-status" id="investmentStatus">
+                    <div class="positions-list" id="positionsList"></div>
+                    <div class="current-profit" id="currentProfit">$0.00</div>
+                </div>
+            </div>
+
+            <div class="news-ticker-container">
+                <div class="news-ticker" id="newsTicker">
+                    <span class="ticker-text" id="tickerText">Welcome to the casino... I mean, investment platform!</span>
+                </div>
+            </div>
+
+            <div class="results-overlay" id="resultsOverlay">
+                <div class="results-content">
+                    <h2 class="results-title" id="resultsTitle">REKT</h2>
+                    <div class="results-profit" id="resultsProfit">-$100.00</div>
+                    <div class="results-multiplier" id="resultsMultiplier">0.00x</div>
+                    <p class="results-message">Next round starting soon...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+</body>
+</html>

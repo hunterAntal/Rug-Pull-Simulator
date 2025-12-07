@@ -1,0 +1,215 @@
+/**
+ * ChartGenerator - Generates price curves for meme coin rounds
+ * Ensures house edge through probability distribution
+ */
+export class ChartGenerator {
+  constructor() {
+    this.ROUND_TYPES = {
+      INSTANT_LOSS: { probability: 0.40, name: 'instant_loss' },
+      SMALL_PEAK: { probability: 0.35, name: 'small_peak' },
+      MEDIUM_PEAK: { probability: 0.20, name: 'medium_peak' },
+      MOON_SHOT: { probability: 0.05, name: 'moon_shot' }
+    };
+  }
+
+  /**
+   * Generate complete price curve for a round
+   * @param {number} durationSeconds - Round duration in seconds
+   * @returns {Object} Chart data with type, peak multiplier, and price points
+   */
+  generateChart(durationSeconds) {
+    const roundType = this.selectRoundType();
+    const samplesPerSecond = 10; // 10 price points per second for smooth animation
+    const totalSamples = durationSeconds * samplesPerSecond;
+
+    let pricePoints;
+    let peakMultiplier;
+
+    switch (roundType) {
+      case 'instant_loss':
+        peakMultiplier = 0;
+        pricePoints = this.generateInstantLoss(totalSamples, durationSeconds);
+        break;
+
+      case 'small_peak':
+        peakMultiplier = this.random(1.1, 1.3);
+        pricePoints = this.generatePeakCurve(totalSamples, durationSeconds, peakMultiplier);
+        break;
+
+      case 'medium_peak':
+        peakMultiplier = this.random(1.5, 2.0);
+        pricePoints = this.generatePeakCurve(totalSamples, durationSeconds, peakMultiplier);
+        break;
+
+      case 'moon_shot':
+        peakMultiplier = this.random(3.0, 5.0);
+        pricePoints = this.generatePeakCurve(totalSamples, durationSeconds, peakMultiplier);
+        break;
+    }
+
+    return {
+      type: roundType,
+      peakMultiplier,
+      pricePoints,
+      duration: durationSeconds
+    };
+  }
+
+  /**
+   * Select round type based on probability distribution
+   * @returns {string} Round type name
+   */
+  selectRoundType() {
+    const rand = Math.random();
+    let cumulative = 0;
+
+    for (const [key, value] of Object.entries(this.ROUND_TYPES)) {
+      cumulative += value.probability;
+      if (rand <= cumulative) {
+        return value.name;
+      }
+    }
+
+    return this.ROUND_TYPES.INSTANT_LOSS.name; // Fallback
+  }
+
+  /**
+   * Generate instant loss curve (exponential decay)
+   * @param {number} samples - Number of data points
+   * @param {number} duration - Duration in seconds
+   * @returns {Array} Price points
+   */
+  generateInstantLoss(samples, duration) {
+    const pricePoints = [];
+    const startPrice = 1.0;
+    const decayRate = 0.5;
+
+    for (let i = 0; i < samples; i++) {
+      const timeRatio = i / samples;
+      const time = timeRatio * duration;
+
+      // Exponential decay with some randomness
+      let price = startPrice * Math.exp(-decayRate * time);
+      price += this.noise() * 0.02; // Small noise
+      price = Math.max(0, price); // Ensure non-negative
+
+      pricePoints.push({
+        time: time,
+        price: price,
+        day: Math.floor(time) + 1
+      });
+    }
+
+    // Ensure final price is 0
+    pricePoints[pricePoints.length - 1].price = 0;
+
+    return pricePoints;
+  }
+
+  /**
+   * Generate peak curve (rise then crash)
+   * @param {number} samples - Number of data points
+   * @param {number} duration - Duration in seconds
+   * @param {number} peakMultiplier - Maximum multiplier to reach
+   * @returns {Array} Price points
+   */
+  generatePeakCurve(samples, duration, peakMultiplier) {
+    const pricePoints = [];
+    const startPrice = 1.0;
+
+    // Peak occurs 30-60% through the round
+    const peakTimeRatio = this.random(0.3, 0.6);
+    const peakSample = Math.floor(samples * peakTimeRatio);
+
+    for (let i = 0; i < samples; i++) {
+      const timeRatio = i / samples;
+      const time = timeRatio * duration;
+      let price;
+
+      if (i <= peakSample) {
+        // Rise phase - smooth acceleration
+        const riseProgress = i / peakSample;
+        const easedProgress = this.easeInOutCubic(riseProgress);
+        price = startPrice + (peakMultiplier - startPrice) * easedProgress;
+
+        // Add realistic volatility
+        price += this.noise() * 0.03;
+      } else {
+        // Crash phase - quadratic decay (faster crash)
+        const crashProgress = (i - peakSample) / (samples - peakSample);
+        const easedCrash = Math.pow(crashProgress, 2);
+        price = peakMultiplier * (1 - easedCrash);
+
+        // Add panic-selling volatility
+        price += this.noise() * 0.05;
+      }
+
+      price = Math.max(0, price); // Ensure non-negative
+
+      pricePoints.push({
+        time: time,
+        price: price,
+        day: Math.floor(time) + 1
+      });
+    }
+
+    // Ensure final price is 0
+    pricePoints[pricePoints.length - 1].price = 0;
+
+    return pricePoints;
+  }
+
+  /**
+   * Generate random number between min and max
+   * @param {number} min
+   * @param {number} max
+   * @returns {number}
+   */
+  random(min, max) {
+    return min + Math.random() * (max - min);
+  }
+
+  /**
+   * Generate noise for price fluctuation
+   * @returns {number} Random noise between -1 and 1
+   */
+  noise() {
+    return (Math.random() - 0.5) * 2;
+  }
+
+  /**
+   * Easing function for smooth animations
+   * @param {number} t - Progress from 0 to 1
+   * @returns {number} Eased value
+   */
+  easeInOutCubic(t) {
+    return t < 0.5
+      ? 4 * t * t * t
+      : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  }
+
+  /**
+   * Get price at specific time
+   * @param {Array} pricePoints - Chart price points
+   * @param {number} currentTime - Current time in seconds
+   * @returns {number} Interpolated price
+   */
+  getPriceAtTime(pricePoints, currentTime) {
+    if (!pricePoints || pricePoints.length === 0) return 1.0;
+    if (currentTime <= 0) return pricePoints[0].price;
+    if (currentTime >= pricePoints[pricePoints.length - 1].time) {
+      return pricePoints[pricePoints.length - 1].price;
+    }
+
+    // Find surrounding points and interpolate
+    for (let i = 0; i < pricePoints.length - 1; i++) {
+      if (pricePoints[i].time <= currentTime && pricePoints[i + 1].time > currentTime) {
+        const t = (currentTime - pricePoints[i].time) /
+                  (pricePoints[i + 1].time - pricePoints[i].time);
+        return pricePoints[i].price + t * (pricePoints[i + 1].price - pricePoints[i].price);
+      }
+    }
+
+    return pricePoints[pricePoints.length - 1].price;
+  }
+}

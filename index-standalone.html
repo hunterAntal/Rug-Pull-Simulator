@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rug Pull Simulator - Meme Coin Crash Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        #app {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 2px solid #00ff88;
+        }
+
+        .coin-name {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #00ff88;
+            text-shadow: 0 0 10px #00ff88;
+        }
+
+        .balance-display {
+            font-size: 1.5rem;
+        }
+
+        .balance-amount {
+            color: #00ff88;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .chart-section {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .day-counter {
+            color: #00ff88;
+            font-weight: bold;
+        }
+
+        .price-display {
+            color: #fff;
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+
+        #priceChart {
+            width: 100%;
+            height: 400px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+        }
+
+        .controls-section {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .bet-controls {
+            margin-bottom: 20px;
+        }
+
+        .bet-controls label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 1.1rem;
+        }
+
+        .bet-controls input {
+            width: 100%;
+            padding: 10px;
+            font-size: 1.2rem;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid #00ff88;
+            border-radius: 5px;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.1s;
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-invest {
+            background: #00ff88;
+            color: #1a1a2e;
+        }
+
+        .btn-invest:not(:disabled):hover {
+            background: #00cc6f;
+            transform: scale(1.05);
+        }
+
+        .btn-cashout {
+            background: #ff3366;
+            color: #fff;
+        }
+
+        .btn-cashout:not(:disabled):hover {
+            background: #cc2952;
+            transform: scale(1.05);
+        }
+
+        .investment-status {
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+            min-height: 100px;
+        }
+
+        .position-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .current-profit {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: right;
+            margin-top: 10px;
+        }
+
+        .current-profit.positive {
+            color: #00ff88;
+        }
+
+        .current-profit.negative {
+            color: #ff3366;
+        }
+
+        .news-ticker-container {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            border: 2px solid #ffaa00;
+        }
+
+        .news-ticker {
+            padding: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .ticker-text {
+            display: inline-block;
+            padding-left: 100%;
+            animation: scroll-ticker 15s linear infinite;
+            color: #ffaa00;
+            font-weight: bold;
+        }
+
+        @keyframes scroll-ticker {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+
+        .results-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .results-overlay.active {
+            display: flex;
+        }
+
+        .results-content {
+            text-align: center;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border: 3px solid #00ff88;
+        }
+
+        .results-title {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .results-title.win {
+            color: #00ff88;
+        }
+
+        .results-title.loss {
+            color: #ff3366;
+        }
+
+        .results-profit {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .results-profit.positive {
+            color: #00ff88;
+        }
+
+        .results-profit.negative {
+            color: #ff3366;
+        }
+
+        .results-multiplier {
+            font-size: 1.5rem;
+            color: #ffaa00;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .coin-name {
+                font-size: 1.8rem;
+            }
+
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <header class="game-header">
+            <h1 class="coin-name" id="coinName">$LOADING</h1>
+            <div class="balance-display">
+                <span class="balance-label">Balance:</span>
+                <span class="balance-amount" id="balance">$1000.00</span>
+            </div>
+        </header>
+
+        <main class="game-container">
+            <div class="chart-section">
+                <div class="chart-header">
+                    <span class="day-counter" id="dayCounter">Day 0</span>
+                    <span class="price-display" id="currentPrice">$1.00</span>
+                </div>
+                <canvas id="priceChart" width="800" height="400"></canvas>
+            </div>
+
+            <div class="controls-section">
+                <div class="bet-controls">
+                    <label for="betAmount">Bet Amount:</label>
+                    <input type="number" id="betAmount" value="100" min="1" step="10">
+                </div>
+
+                <div class="action-buttons">
+                    <button id="investBtn" class="btn btn-invest" disabled>
+                        INVEST
+                    </button>
+                    <button id="cashOutBtn" class="btn btn-cashout" disabled>
+                        CASH OUT
+                    </button>
+                </div>
+
+                <div class="investment-status">
+                    <div class="positions-list" id="positionsList">
+                        <p style="color: #666;">No active positions</p>
+                    </div>
+                    <div class="current-profit" id="currentProfit">$0.00</div>
+                </div>
+            </div>
+
+            <div class="news-ticker-container">
+                <div class="news-ticker">
+                    <span class="ticker-text" id="tickerText">Welcome to the casino!</span>
+                </div>
+            </div>
+
+            <div class="results-overlay" id="resultsOverlay">
+                <div class="results-content">
+                    <h2 class="results-title" id="resultsTitle">REKT</h2>
+                    <div class="results-profit" id="resultsProfit">-$100.00</div>
+                    <div class="results-multiplier" id="resultsMultiplier">0.00x</div>
+                    <p>Next round starting soon...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        // Import all game modules inline to make it work without a build step
+        // This is a standalone version for testing
+    </script>
+    <script type="module" src="./src/main.js"></script>
+</body>
+</html>
