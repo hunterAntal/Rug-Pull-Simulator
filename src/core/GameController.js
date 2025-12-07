@@ -64,6 +64,13 @@ export class GameController {
     this.roundTimer.start(duration);
     this.lastCashOutResult = null;
 
+    // Auto-invest at round start (Day 0, $1.00)
+    if (this.balanceManager.hasSufficientFunds(this.betAmount)) {
+      this.balanceManager.deduct(this.betAmount, 'investment');
+      this.investmentManager.autoInvest(this.betAmount);
+      this.emit('balanceUpdate', { balance: this.balanceManager.getBalance() });
+    }
+
     // Start active round
     this.state = 'active';
     this.emit('stateChange', {
@@ -162,15 +169,24 @@ export class GameController {
   }
 
   /**
-   * Player invests in current round
+   * Player doubles down (adds second investment at current price)
    */
-  invest() {
+  doubleDown() {
     if (this.state !== 'active') {
       return { success: false, message: 'Round not active' };
     }
 
-    if (!this.investmentManager.canInvest()) {
-      return { success: false, message: 'Cannot invest more this round' };
+    if (!this.investmentManager.canDoubleDown()) {
+      return { success: false, message: 'Cannot double down' };
+    }
+
+    // Check 70% time restriction
+    const elapsedTime = this.roundTimer.getElapsedTime();
+    const duration = this.currentRound.duration;
+    const roundProgress = elapsedTime / duration;
+
+    if (roundProgress > 0.70) {
+      return { success: false, message: 'Too late to double down' };
     }
 
     // Check balance
@@ -179,7 +195,6 @@ export class GameController {
     }
 
     // Get current price
-    const elapsedTime = this.roundTimer.getElapsedTime();
     const currentPrice = this.chartGenerator.getPriceAtTime(
       this.currentRound.pricePoints,
       elapsedTime
@@ -191,8 +206,8 @@ export class GameController {
       return deductResult;
     }
 
-    // Add investment
-    const investResult = this.investmentManager.addInvestment(
+    // Double down investment
+    const doubleDownResult = this.investmentManager.doubleDown(
       this.betAmount,
       currentPrice,
       elapsedTime
@@ -201,7 +216,7 @@ export class GameController {
     this.emit('balanceUpdate', { balance: this.balanceManager.getBalance() });
 
     return {
-      ...investResult,
+      ...doubleDownResult,
       balance: this.balanceManager.getBalance()
     };
   }

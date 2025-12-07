@@ -18,9 +18,9 @@ class Game {
    * Setup DOM event listeners
    */
   setupEventListeners() {
-    // Invest button
+    // Double down button
     this.ui.elements.investBtn.addEventListener('click', () => {
-      const result = this.controller.invest();
+      const result = this.controller.doubleDown();
       if (!result.success) {
         this.showNotification(result.message);
       } else {
@@ -49,7 +49,7 @@ class Game {
     document.addEventListener('keydown', (e) => {
       if (e.code === 'Space' && this.controller.state === 'active') {
         e.preventDefault();
-        if (this.controller.investmentManager.canInvest()) {
+        if (this.controller.investmentManager.canDoubleDown()) {
           this.ui.elements.investBtn.click();
         }
       } else if (e.code === 'KeyC' && this.controller.state === 'active') {

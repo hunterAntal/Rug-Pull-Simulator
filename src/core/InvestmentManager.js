@@ -11,24 +11,49 @@ export class InvestmentManager {
    */
   reset() {
     this.investments = [];
-    this.maxInvestments = 3;
+    this.hasDoubledDown = false;
     this.hasCashedOut = false;
   }
 
   /**
-   * Add new investment
+   * Auto-invest at round start (always at $1.00, Day 0)
    * @param {number} amount - Investment amount
-   * @param {number} entryPrice - Price at time of investment
-   * @param {number} entryTime - Time of investment
-   * @returns {Object} Investment object or null if failed
+   * @returns {Object} Investment result
    */
-  addInvestment(amount, entryPrice, entryTime) {
-    if (this.investments.length >= this.maxInvestments) {
-      return { success: false, message: 'Maximum 3 investments per round' };
+  autoInvest(amount) {
+    const investment = {
+      id: Date.now() + Math.random(),
+      amount,
+      entryPrice: 1.0,
+      entryTime: 0,
+      entryDay: 1,
+      status: 'active',
+      type: 'initial'
+    };
+
+    this.investments.push(investment);
+
+    return { success: true, investment };
+  }
+
+  /**
+   * Double down - add second investment at current price
+   * @param {number} amount - Investment amount
+   * @param {number} entryPrice - Current market price
+   * @param {number} entryTime - Current time
+   * @returns {Object} Investment result
+   */
+  doubleDown(amount, entryPrice, entryTime) {
+    if (this.hasDoubledDown) {
+      return { success: false, message: 'Already doubled down this round' };
     }
 
     if (this.hasCashedOut) {
       return { success: false, message: 'Already cashed out this round' };
+    }
+
+    if (this.investments.length === 0) {
+      return { success: false, message: 'No initial investment' };
     }
 
     const investment = {
@@ -37,10 +62,12 @@ export class InvestmentManager {
       entryPrice,
       entryTime,
       entryDay: Math.floor(entryTime) + 1,
-      status: 'active'
+      status: 'active',
+      type: 'doubled'
     };
 
     this.investments.push(investment);
+    this.hasDoubledDown = true;
 
     return { success: true, investment };
   }
@@ -145,19 +172,11 @@ export class InvestmentManager {
   }
 
   /**
-   * Check if can invest more
+   * Check if can double down
    * @returns {boolean}
    */
-  canInvest() {
-    return this.investments.length < this.maxInvestments && !this.hasCashedOut;
-  }
-
-  /**
-   * Get number of remaining investment slots
-   * @returns {number}
-   */
-  getRemainingSlots() {
-    return this.maxInvestments - this.investments.length;
+  canDoubleDown() {
+    return !this.hasDoubledDown && !this.hasCashedOut && this.investments.length > 0;
   }
 
   /**
@@ -175,9 +194,9 @@ export class InvestmentManager {
   getSummary() {
     return {
       totalInvestments: this.investments.length,
-      remainingSlots: this.getRemainingSlots(),
+      hasDoubledDown: this.hasDoubledDown,
       hasCashedOut: this.hasCashedOut,
-      canInvest: this.canInvest(),
+      canDoubleDown: this.canDoubleDown(),
       investments: this.investments
     };
   }

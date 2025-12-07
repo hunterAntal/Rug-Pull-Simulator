@@ -77,23 +77,26 @@ export class UIRenderer {
    * Update button states
    */
   updateButtons(state) {
-    const canInvest = state === 'active' &&
-                     this.game.investmentManager.canInvest() &&
-                     this.game.balanceManager.hasSufficientFunds(this.game.betAmount);
+    // Check if can double down (not already doubled, not cashed out, has balance, within 70% time)
+    let canDoubleDown = false;
+    if (state === 'active') {
+      const elapsedTime = this.game.roundTimer.getElapsedTime();
+      const duration = this.game.currentRound.duration;
+      const roundProgress = elapsedTime / duration;
+
+      canDoubleDown = this.game.investmentManager.canDoubleDown() &&
+                      this.game.balanceManager.hasSufficientFunds(this.game.betAmount) &&
+                      roundProgress <= 0.70;
+    }
 
     const canCashOut = state === 'active' &&
                       this.game.investmentManager.hasActiveInvestments();
 
-    this.elements.investBtn.disabled = !canInvest;
+    this.elements.investBtn.disabled = !canDoubleDown;
     this.elements.cashOutBtn.disabled = !canCashOut;
 
-    // Update invest button text
-    const remaining = this.game.investmentManager.getRemainingSlots();
-    if (state === 'active' && remaining > 0) {
-      this.elements.investBtn.textContent = `INVEST (${remaining} left)`;
-    } else {
-      this.elements.investBtn.textContent = 'INVEST';
-    }
+    // Update button text to "DOUBLE DOWN"
+    this.elements.investBtn.textContent = 'DOUBLE DOWN';
   }
 
   /**
