@@ -131,10 +131,13 @@ export class GameController {
     let result;
     if (this.investmentManager.hasActiveInvestments()) {
       // Player didn't cash out - lost everything
-      result = this.investmentManager.markAsLost();
-      result.profit = -result.totalLoss;
-      result.multiplier = 0;
-      result.outcome = 'loss';
+      const lossResult = this.investmentManager.markAsLost();
+      result = {
+        ...lossResult,
+        profit: -lossResult.totalLoss,
+        multiplier: 0,
+        outcome: 'loss'
+      };
     } else if (this.investmentManager.hasCashedOut && this.lastCashOutResult) {
       // Already cashed out - use stored result
       result = {
@@ -142,7 +145,8 @@ export class GameController {
         profit: this.lastCashOutResult.totalProfit,
         multiplier: this.lastCashOutResult.multiplier,
         totalInvested: this.lastCashOutResult.totalInvested,
-        currentValue: this.lastCashOutResult.currentValue
+        currentValue: this.lastCashOutResult.currentValue,
+        positions: this.lastCashOutResult.positions
       };
     } else {
       // No investments
@@ -180,21 +184,13 @@ export class GameController {
       return { success: false, message: 'Cannot double down' };
     }
 
-    // Check 70% time restriction
-    const elapsedTime = this.roundTimer.getElapsedTime();
-    const duration = this.currentRound.duration;
-    const roundProgress = elapsedTime / duration;
-
-    if (roundProgress > 0.70) {
-      return { success: false, message: 'Too late to double down' };
-    }
-
     // Check balance
     if (!this.balanceManager.hasSufficientFunds(this.betAmount)) {
       return { success: false, message: 'Insufficient funds' };
     }
 
     // Get current price
+    const elapsedTime = this.roundTimer.getElapsedTime();
     const currentPrice = this.chartGenerator.getPriceAtTime(
       this.currentRound.pricePoints,
       elapsedTime
@@ -254,7 +250,8 @@ export class GameController {
       totalProfit: cashOutResult.totalProfit,
       multiplier: cashOutResult.multiplier,
       totalInvested: cashOutResult.totalInvested,
-      currentValue: cashOutResult.currentValue
+      currentValue: cashOutResult.currentValue,
+      positions: cashOutResult.positions
     };
 
     this.emit('balanceUpdate', { balance: this.balanceManager.getBalance() });

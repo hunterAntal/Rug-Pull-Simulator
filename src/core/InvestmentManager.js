@@ -155,19 +155,29 @@ export class InvestmentManager {
    */
   markAsLost() {
     if (this.investments.length === 0) {
-      return { success: false, totalLoss: 0 };
+      return { success: false, totalLoss: 0, positions: [] };
     }
 
     let totalLoss = 0;
+    const positions = [];
+
     this.investments.forEach(inv => {
       inv.status = 'lost';
       totalLoss += inv.amount;
+
+      positions.push({
+        ...inv,
+        multiplier: 0,
+        value: 0,
+        profit: -inv.amount
+      });
     });
 
     return {
       success: true,
       totalLoss,
-      totalInvested: totalLoss
+      totalInvested: totalLoss,
+      positions
     };
   }
 

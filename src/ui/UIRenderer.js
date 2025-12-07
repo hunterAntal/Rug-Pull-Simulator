@@ -30,7 +30,8 @@ export class UIRenderer {
       resultsOverlay: document.getElementById('resultsOverlay'),
       resultsTitle: document.getElementById('resultsTitle'),
       resultsProfit: document.getElementById('resultsProfit'),
-      resultsMultiplier: document.getElementById('resultsMultiplier')
+      resultsMultiplier: document.getElementById('resultsMultiplier'),
+      resultsBreakdown: document.getElementById('resultsBreakdown')
     };
   }
 
@@ -78,16 +79,11 @@ export class UIRenderer {
    * Update button states
    */
   updateButtons(state) {
-    // Check if can double down (not already doubled, not cashed out, has balance, within 70% time)
+    // Check if can double down (not already doubled, not cashed out, has balance)
     let canDoubleDown = false;
     if (state === 'active') {
-      const elapsedTime = this.game.roundTimer.getElapsedTime();
-      const duration = this.game.currentRound.duration;
-      const roundProgress = elapsedTime / duration;
-
       canDoubleDown = this.game.investmentManager.canDoubleDown() &&
-                      this.game.balanceManager.hasSufficientFunds(this.game.betAmount) &&
-                      roundProgress <= 0.70;
+                      this.game.balanceManager.hasSufficientFunds(this.game.betAmount);
     }
 
     const canCashOut = state === 'active' &&
@@ -368,6 +364,25 @@ export class UIRenderer {
     // Show multiplier
     const mult = result.multiplier || 0;
     this.elements.resultsMultiplier.textContent = `${mult.toFixed(2)}x`;
+
+    // Show breakdown if positions exist
+    if (result.positions && result.positions.length > 0) {
+      const breakdownHtml = result.positions.map((pos, index) => {
+        const profitClass = pos.profit >= 0 ? 'positive' : 'negative';
+        const positionType = pos.type === 'initial' ? 'Initial Bet' : 'Double Down';
+
+        return `
+          <div class="breakdown-row">
+            <span class="breakdown-label">${positionType}:</span>
+            <span class="breakdown-value ${profitClass}">${pos.profit >= 0 ? '+' : ''}$${pos.profit.toFixed(2)}</span>
+          </div>
+        `;
+      }).join('');
+
+      this.elements.resultsBreakdown.innerHTML = breakdownHtml;
+    } else {
+      this.elements.resultsBreakdown.innerHTML = '';
+    }
   }
 
   /**
