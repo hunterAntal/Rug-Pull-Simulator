@@ -56,8 +56,8 @@ export class GameController {
 
     // Log round info for debugging
     console.log(`🎲 Round Type: ${this.currentRound.type}`);
-    console.log(`📊 Opening: ${this.currentRound.openingPattern}`);
     console.log(`📈 Peak Multiplier: ${this.currentRound.peakMultiplier.toFixed(2)}x`);
+    console.log(`⚡ Opening: Extreme Chaos (1.5-3s violent swings)`);
 
     // Reset round-specific managers
     this.investmentManager.reset();
