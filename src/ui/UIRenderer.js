@@ -9,6 +9,7 @@ export class UIRenderer {
     this.priceHistory = [];
     this.maxHistoryPoints = 1000;
     this.cashOutMarker = null;
+    this.doubleDownMarker = null;
   }
 
   /**
@@ -221,6 +222,40 @@ export class UIRenderer {
 
     this.ctx.stroke();
 
+    // Draw double down marker (if exists)
+    if (this.doubleDownMarker) {
+      // Find the index of the price point closest to double down time
+      const doubleDownIndex = this.priceHistory.findIndex(p => p.time >= this.doubleDownMarker.time);
+
+      if (doubleDownIndex !== -1) {
+        const x = (doubleDownIndex / (this.priceHistory.length - 1)) * (width - padding * 2) + padding;
+        const y = height - padding - ((this.doubleDownMarker.price - minPrice) / (maxPrice - minPrice)) * (height - padding * 2);
+
+        // Vertical dashed line (full height) - blue/cyan color
+        this.ctx.strokeStyle = '#00d4ff';
+        this.ctx.lineWidth = 2;
+        this.ctx.setLineDash([8, 4]);
+        this.ctx.beginPath();
+        this.ctx.moveTo(x, padding);
+        this.ctx.lineTo(x, height - padding);
+        this.ctx.stroke();
+        this.ctx.setLineDash([]);
+
+        // Dot on price line
+        this.ctx.fillStyle = '#00d4ff';
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, 6, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        // White border around dot for visibility
+        this.ctx.strokeStyle = '#fff';
+        this.ctx.lineWidth = 2;
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, 6, 0, Math.PI * 2);
+        this.ctx.stroke();
+      }
+    }
+
     // Draw cash out marker (if exists)
     if (this.cashOutMarker) {
       // Find the index of the price point closest to cash out time
@@ -314,12 +349,26 @@ export class UIRenderer {
   }
 
   /**
+   * Set double down marker
+   */
+  setDoubleDownMarker() {
+    const currentPrice = this.game.getCurrentPrice();
+    const currentTime = this.game.roundTimer.getElapsedTime();
+
+    this.doubleDownMarker = {
+      time: currentTime,
+      price: currentPrice
+    };
+  }
+
+  /**
    * Show round start
    */
   showRoundStart(coinName) {
     this.elements.coinName.textContent = coinName;
     this.priceHistory = [];
     this.cashOutMarker = null;
+    this.doubleDownMarker = null;
     this.elements.positionsList.innerHTML = '<p style="color: #666;">No active positions</p>';
     this.elements.currentProfit.textContent = '$0.00';
     this.hideResults();

@@ -24,6 +24,7 @@ class Game {
       if (!result.success) {
         this.showNotification(result.message);
       } else {
+        this.ui.setDoubleDownMarker();
         this.playSound('invest');
       }
     });
