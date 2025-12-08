@@ -10,7 +10,13 @@ export class ChartGenerator {
       MEDIUM_PEAK: { probability: 0.20, name: 'medium_peak' },
       MOON_SHOT: { probability: 0.05, name: 'moon_shot' }
     };
+
+    // Configurable crash timing - how many seconds before round end to crash
+    // [min, max] range in seconds
+    this.endOfRoundCrash = [1, 5];
   }
+
+
 
   /**
    * Generate complete price curve for a round
@@ -82,7 +88,7 @@ export class ChartGenerator {
   generateInstantLoss(samples, duration) {
     const pricePoints = [];
     const tickInterval = 0.1; // 10 points per second
-    const crashTime = duration - this.random(0.2, 0.4); // Crash 0.2-0.4s before end
+    const crashTime = duration - this.random(this.endOfRoundCrash[0], this.endOfRoundCrash[1]);
 
     // Generate opening chaos (1.5-2.5s)
     const openingDuration = this.random(1.5, 2.5);
@@ -159,7 +165,7 @@ export class ChartGenerator {
   generatePeakCurve(samples, duration, peakMultiplier) {
     const pricePoints = [];
     const tickInterval = 0.1; // 10 points per second
-    const crashTime = duration - this.random(0.2, 0.4); // Crash 0.2-0.4s before end
+    const crashTime = duration - this.random(this.endOfRoundCrash[0], this.endOfRoundCrash[1]);
 
     // Generate opening chaos (1.5-2.5s)
     const openingDuration = this.random(1.5, 2.5);
