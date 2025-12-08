@@ -408,9 +408,130 @@ body {
     color: #ff3366;
 }
 
+.stats-section {
+    margin: 20px 0;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.balance-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    font-size: 1.3rem;
+}
+
+.stat-label {
+    color: #aaa;
+}
+
+.stat-value {
+    color: #00ff88;
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.record-row {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+}
+
+.record-item {
+    display: flex;
+    gap: 8px;
+    font-size: 1.1rem;
+}
+
+.record-label {
+    color: #aaa;
+}
+
+.record-value {
+    font-weight: bold;
+}
+
+.record-item.wins .record-value {
+    color: #00ff88;
+}
+
+.record-item.losses .record-value {
+    color: #ff3366;
+}
+
+.bet-adjustment-section {
+    margin: 20px 0;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.bet-label {
+    color: #aaa;
+    font-size: 1rem;
+}
+
+.bet-controls-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.bet-btn {
+    width: 45px;
+    height: 45px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    background: rgba(0, 255, 136, 0.1);
+    border: 2px solid #00ff88;
+    border-radius: 8px;
+    color: #00ff88;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Courier New', monospace;
+}
+
+.bet-btn:hover {
+    background: rgba(0, 255, 136, 0.2);
+    transform: scale(1.05);
+}
+
+.bet-btn:active {
+    transform: scale(0.95);
+}
+
+.bet-input-results {
+    width: 120px;
+    padding: 12px;
+    font-size: 1.3rem;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.5);
+    border: 2px solid #00ff88;
+    border-radius: 8px;
+    color: #fff;
+    font-weight: bold;
+    font-family: 'Courier New', monospace;
+}
+
+.bet-input-results:focus {
+    outline: none;
+    border-color: #00ffaa;
+    box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+}
+
 .results-message {
     font-size: 1.2rem;
     color: #aaa;
+    margin-top: 10px;
 }
 
 /* Mobile Responsive */

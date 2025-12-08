@@ -20,6 +20,12 @@ export class GameController {
     this.betAmount = 100;
     this.lastCashOutResult = null;
 
+    // Track wins and losses
+    this.stats = {
+      wins: 0,
+      losses: 0
+    };
+
     this.listeners = {
       stateChange: [],
       priceUpdate: [],
@@ -138,6 +144,7 @@ export class GameController {
         multiplier: 0,
         outcome: 'loss'
       };
+      this.stats.losses++;
     } else if (this.investmentManager.hasCashedOut && this.lastCashOutResult) {
       // Already cashed out - use stored result
       result = {
@@ -148,6 +155,13 @@ export class GameController {
         currentValue: this.lastCashOutResult.currentValue,
         positions: this.lastCashOutResult.positions
       };
+
+      // Track win/loss
+      if (result.profit > 0) {
+        this.stats.wins++;
+      } else if (result.profit < 0) {
+        this.stats.losses++;
+      }
     } else {
       // No investments
       result = {
