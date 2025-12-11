@@ -64,6 +64,28 @@ class Game {
       }
     });
 
+    // Mobile button handlers
+    this.ui.elements.mobileDoubleDownBtn.addEventListener('click', () => {
+      const result = this.controller.doubleDown();
+      if (!result.success) {
+        this.showNotification(result.message);
+      } else {
+        this.ui.setDoubleDownMarker();
+        this.playSound('invest');
+      }
+    });
+
+    this.ui.elements.mobileCashOutBtn.addEventListener('click', () => {
+      const result = this.controller.cashOut();
+      if (!result.success) {
+        this.showNotification(result.message);
+      } else {
+        this.ui.setCashOutMarker();
+        this.playSound('cashout');
+        this.showNotification(`Cashed out! ${result.totalProfit >= 0 ? '+' : ''}$${result.totalProfit.toFixed(2)}`);
+      }
+    });
+
     // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
       if (e.code === 'Space' && this.controller.state === 'active') {

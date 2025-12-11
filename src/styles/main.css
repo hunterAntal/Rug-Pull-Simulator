@@ -534,6 +534,11 @@ body {
     margin-top: 10px;
 }
 
+/* Mobile Action Bar - Hidden on desktop */
+.mobile-action-bar {
+    display: none;
+}
+
 /* Mobile Responsive */
 @media (max-width: 1024px) {
     .position-panel {
@@ -546,42 +551,191 @@ body {
 }
 
 @media (max-width: 768px) {
+    /* Full-screen mobile game mode */
+    html, body {
+        height: 100%;
+        overflow: hidden;
+    }
+
+    #app {
+        height: 100vh;
+        height: 100dvh; /* Dynamic viewport height for mobile browsers */
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    /* Compact header */
+    .game-header {
+        padding: 8px 15px;
+        flex-shrink: 0;
+    }
+
     .coin-name {
-        font-size: 1.8rem;
+        font-size: 1.4rem;
     }
 
     .balance-display {
-        font-size: 1.2rem;
+        font-size: 1rem;
+    }
+
+    .balance-label {
+        display: none; /* Hide "Balance:" label on mobile */
+    }
+
+    /* Main content fills available space */
+    .game-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        padding: 0;
     }
 
     .main-content {
+        flex: 1;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    /* Chart takes most of the screen */
+    .chart-section {
+        flex: 1;
+        border-radius: 0;
+        border: none;
+        min-width: 100%;
+        display: flex;
         flex-direction: column;
     }
 
-    .chart-section {
-        border-radius: 10px 10px 0 0;
-        border-right: 2px solid rgba(255, 255, 255, 0.1);
-        border-bottom: none;
-        min-width: 100%;
-    }
-
-    .position-panel {
-        width: 100%;
-        max-width: 100%;
-        border-radius: 0 0 10px 10px;
-        border-left: 2px solid rgba(255, 255, 255, 0.1);
-        border-top: 1px solid rgba(255, 255, 255, 0.2);
+    .chart-header {
+        padding: 8px 15px;
+        flex-shrink: 0;
     }
 
     #priceChart {
-        max-height: 300px;
+        flex: 1;
+        max-height: none;
+        width: 100%;
+        height: 100%;
     }
 
-    .positions-container {
-        max-height: 150px;
+    /* Hide position panel on mobile during gameplay */
+    .position-panel {
+        display: none;
     }
 
-    .current-profit {
-        font-size: 1.5rem;
+    /* Hide news ticker on mobile */
+    .news-ticker-container {
+        display: none;
+    }
+
+    /* Mobile Action Bar - Fixed at bottom */
+    .mobile-action-bar {
+        display: flex;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 70px;
+        background: rgba(0, 0, 0, 0.95);
+        border-top: 2px solid rgba(255, 255, 255, 0.2);
+        padding: 8px;
+        gap: 8px;
+        z-index: 100;
+    }
+
+    .mobile-btn {
+        flex: 1;
+        font-size: 1.1rem;
+        font-weight: bold;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-family: 'Courier New', monospace;
+        transition: all 0.2s;
+        text-transform: uppercase;
+    }
+
+    .mobile-btn-double {
+        background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+        color: #000;
+    }
+
+    .mobile-btn-double:disabled {
+        background: #333;
+        color: #666;
+        cursor: not-allowed;
+    }
+
+    .mobile-btn-double:not(:disabled):active {
+        transform: scale(0.95);
+        background: linear-gradient(135deg, #00ffff 0%, #00bbee 100%);
+    }
+
+    .mobile-btn-cashout {
+        background: linear-gradient(135deg, #00ff88 0%, #00cc66 100%);
+        color: #000;
+    }
+
+    .mobile-btn-cashout:disabled {
+        background: #333;
+        color: #666;
+        cursor: not-allowed;
+    }
+
+    .mobile-btn-cashout:not(:disabled):active {
+        transform: scale(0.95);
+        background: linear-gradient(135deg, #00ffaa 0%, #00ee88 100%);
+    }
+
+    /* Add padding to bottom of main content to account for fixed action bar */
+    .main-content {
+        padding-bottom: 78px;
+    }
+
+    /* Mobile-optimized results overlay */
+    .results-overlay {
+        padding-bottom: 78px;
+    }
+
+    .results-content {
+        padding: 20px 15px;
+        max-height: calc(100vh - 100px);
+        overflow-y: auto;
+    }
+
+    .results-title {
+        font-size: 1.8rem;
+    }
+
+    .results-profit {
+        font-size: 2.5rem;
+    }
+
+    .results-multiplier {
+        font-size: 1.2rem;
+    }
+
+    .stats-section {
+        padding: 15px;
+        margin: 15px 0;
+    }
+
+    .bet-adjustment-section {
+        padding: 12px;
+        margin: 15px 0;
+    }
+
+    .bet-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 1.8rem;
+    }
+
+    .bet-input-results {
+        width: 100px;
+        padding: 10px;
+        font-size: 1.2rem;
     }
 }

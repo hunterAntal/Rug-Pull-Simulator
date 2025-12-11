@@ -39,7 +39,10 @@ export class UIRenderer {
       betInputResults: document.getElementById('betInputResults'),
       decreaseBet: document.getElementById('decreaseBet'),
       increaseBet: document.getElementById('increaseBet'),
-      countdownMessage: document.getElementById('countdownMessage')
+      countdownMessage: document.getElementById('countdownMessage'),
+      // Mobile buttons
+      mobileDoubleDownBtn: document.getElementById('mobileDoubleDownBtn'),
+      mobileCashOutBtn: document.getElementById('mobileCashOutBtn')
     };
   }
 
@@ -97,8 +100,13 @@ export class UIRenderer {
     const canCashOut = state === 'active' &&
                       this.game.investmentManager.hasActiveInvestments();
 
+    // Desktop buttons
     this.elements.investBtn.disabled = !canDoubleDown;
     this.elements.cashOutBtn.disabled = !canCashOut;
+
+    // Mobile buttons
+    this.elements.mobileDoubleDownBtn.disabled = !canDoubleDown;
+    this.elements.mobileCashOutBtn.disabled = !canCashOut;
 
     // Update button text to "DOUBLE DOWN"
     this.elements.investBtn.textContent = 'DOUBLE DOWN';
