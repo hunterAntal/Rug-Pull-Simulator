@@ -1,0 +1,10 @@
+- Use a tournaments with entry fees model to possible get around the gambling laws 
+- Make a variant for the arcade scene
+- Make the game more skill based by making the player do research 
+- Tournament style but the games are random every round
+    - Round 1: Tic-Tac-Toe
+    - Round 2: Rock-Paper-Scizzors 
+- Leader board
+- Bigest bet per round
+- Arcade: If they cashout at the apex, they get jackpot
+- 
